@@ -86,12 +86,19 @@ class PasswordGrant extends AbstractGrant
             throw OAuthServerException::invalidRequest('password');
         }
 
-        $user = $this->userRepository->getUserEntityByUserCredentials(
+        $config_provider = $this->getRequestParameter('config_provider', $request);
+        if (is_null($config_provider)) {
+            throw OAuthServerException::invalidRequest('config_provider');
+        }
+
+        $user = $this->userRepository->getEntityByUserCredentials(
             $username,
             $password,
             $this->getIdentifier(),
-            $client
+            $client,
+            $config_provider
         );
+
         if ($user instanceof UserEntityInterface === false) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
 
